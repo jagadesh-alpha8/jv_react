@@ -157,6 +157,7 @@ export default function Products() {
               <Label>Unit</Label>
               <Select value={form.unit} onChange={f('unit')}>
                 <option value="pcs">pcs</option>
+                <option value="set">set</option>
                 <option value="kg">kg</option>
                 <option value="ltr">ltr</option>
                 <option value="hrs">hrs</option>
