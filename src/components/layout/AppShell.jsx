@@ -56,7 +56,7 @@ function SidebarNav({ onNavigate }) {
     <div className="flex h-full flex-col">
       <div className="flex items-center gap-2.5 px-5 py-5">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary font-bold text-primary-foreground">
-          G
+          J V
         </div>
         <div>
           <div className="text-sm font-semibold text-sidebar-foreground">
