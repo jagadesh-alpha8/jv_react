@@ -40,6 +40,9 @@ export const productsApi = {
   create: (data) => api.post('/products/', data),
   update: (id, data) => api.patch(`/products/${id}/`, data),
   remove: (id) => api.delete(`/products/${id}/`),
+  // Live duplicate lookup while typing a product name.
+  checkName: (name, excludeId, config) =>
+    api.get('/products/check-name/', { params: { name, exclude: excludeId || undefined }, ...config }),
 }
 
 // PDF endpoints require the auth token, so a plain <a href> can't be used —

@@ -66,7 +66,7 @@ export default function Invoices() {
   useEffect(() => {
     invoicesApi.financialYears().then((r) => setFyList(r.data)).catch(() => {})
     customersApi.list({ page: 1 }).then((r) => setCustomers(r.data.results ?? r.data)).catch(() => {})
-    productsApi.list({ page: 1 }).then((r) => setProducts(r.data.results ?? r.data)).catch(() => {})
+    productsApi.list({ page: 1, page_size: 500 }).then((r) => setProducts(r.data.results ?? r.data)).catch(() => {})
   }, [])
 
   useEffect(() => { load() }, [page]) // eslint-disable-line
@@ -207,6 +207,7 @@ export default function Invoices() {
           editing={editing}
           customers={customers}
           products={products}
+          onProductCreated={(p) => setProducts((prev) => (prev.some((x) => x.id === p.id) ? prev : [p, ...prev]))}
           onSaved={handleSaved}
           onCancel={() => setFormOpen(false)}
         />

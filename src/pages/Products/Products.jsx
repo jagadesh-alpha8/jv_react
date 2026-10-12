@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
-import { Search, Plus } from 'lucide-react'
+import { Search, Plus, AlertTriangle, Info } from 'lucide-react'
 import { productsApi } from '../../api'
 import { Modal } from '../../components/ui/modal'
 import { Button } from '../../components/ui/button'
@@ -14,6 +14,22 @@ import { CenteredSpinner } from '../../components/ui/spinner'
 import { useToast } from '../../components/ui/toast'
 
 const EMPTY = { name: '', description: '', hsn_sac_code: '', unit: 'pcs', price: '', tax_percentage: '18', is_service: false }
+const NO_CHECK = { exact: null, matches: [], checking: false }
+
+const money = (v) => `₹${Number(v || 0).toLocaleString('en-IN')}`
+const norm = (v) => (v || '').trim().replace(/\s+/g, ' ').toLowerCase()
+
+// DRF returns either {detail: "..."} or a per-field map like {name: ["..."]}.
+function firstError(data) {
+  if (!data) return null
+  if (typeof data === 'string') return data
+  if (data.detail) return data.detail
+  for (const v of Object.values(data)) {
+    const msg = Array.isArray(v) ? v[0] : v
+    if (typeof msg === 'string') return msg
+  }
+  return null
+}
 
 export default function Products() {
   const [rows, setRows] = useState([])
@@ -25,6 +41,9 @@ export default function Products() {
   const [saving, setSaving] = useState(false)
   const [page, setPage] = useState(1)
   const [totalCount, setTotalCount] = useState(0)
+  // Live duplicate lookup for the name field + the user's "yes, create it anyway" ack.
+  const [nameCheck, setNameCheck] = useState(NO_CHECK)
+  const [dupAcknowledged, setDupAcknowledged] = useState(false)
   const toast = useToast()
 
   const load = useCallback(async (q = search, pg = page) => {
@@ -40,20 +59,62 @@ export default function Products() {
   useEffect(() => { load() }, [page]) // eslint-disable-line
   useEffect(() => { setPage(1); load(search, 1) }, [search]) // eslint-disable-line
 
-  const openCreate = () => { setEditing(null); setForm(EMPTY); setModalOpen(true) }
-  const openEdit = (p) => { setEditing(p); setForm({ ...p }); setModalOpen(true) }
+  // Ask the backend which existing products look like the name being typed.
+  useEffect(() => {
+    if (!modalOpen) { setNameCheck(NO_CHECK); return }
+
+    const name = form.name.trim()
+    if (name.length < 2) { setNameCheck(NO_CHECK); return }
+
+    setNameCheck((p) => ({ ...p, checking: true }))
+    const controller = new AbortController()
+    const timer = setTimeout(async () => {
+      try {
+        const res = await productsApi.checkName(name, editing?.id, { signal: controller.signal })
+        setNameCheck({ exact: res.data.exact, matches: res.data.matches || [], checking: false })
+      } catch {
+        if (!controller.signal.aborted) setNameCheck(NO_CHECK)
+      }
+    }, 300)
+
+    return () => { clearTimeout(timer); controller.abort() }
+  }, [form.name, modalOpen, editing])
+
+  const closeModal = () => {
+    setModalOpen(false)
+    setNameCheck(NO_CHECK)
+    setDupAcknowledged(false)
+  }
+
+  const openCreate = () => {
+    setEditing(null); setForm(EMPTY); setNameCheck(NO_CHECK); setDupAcknowledged(false); setModalOpen(true)
+  }
+  const openEdit = (p) => {
+    setEditing(p); setForm({ ...p }); setNameCheck(NO_CHECK); setDupAcknowledged(false); setModalOpen(true)
+  }
+
+  // Editing a product without touching its name never introduces a new clash.
+  const renaming = !editing || norm(form.name) !== norm(editing.name)
 
   const save = async () => {
     if (!form.name || !form.price) return toast('Name and price are required', 'error')
+
+    // Block the first save on an exact-name clash; a second click confirms it.
+    if (nameCheck.exact && renaming && !dupAcknowledged) {
+      setDupAcknowledged(true)
+      return toast(`"${nameCheck.exact.name}" already exists — press Save again to use this name anyway`, 'error')
+    }
+
     setSaving(true)
     try {
-      if (editing) { await productsApi.update(editing.id, form) }
-      else { await productsApi.create(form) }
+      const payload = dupAcknowledged ? { ...form, allow_duplicate: true } : form
+      if (editing) { await productsApi.update(editing.id, payload) }
+      else { await productsApi.create(payload) }
       toast(editing ? 'Product updated' : 'Product created', 'success')
-      setModalOpen(false)
+      closeModal()
       load(search, page)
     } catch (e) {
-      toast(e.response?.data?.detail || 'Save failed', 'error')
+      toast(firstError(e.response?.data) || 'Save failed', 'error')
     } finally { setSaving(false) }
   }
 
@@ -63,7 +124,13 @@ export default function Products() {
     catch { toast('Delete failed', 'error') }
   }
 
-  const f = (k) => (e) => setForm((p) => ({ ...p, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }))
+  const f = (k) => (e) => {
+    const v = e.target.type === 'checkbox' ? e.target.checked : e.target.value
+    if (k === 'name') setDupAcknowledged(false)
+    setForm((p) => ({ ...p, [k]: v }))
+  }
+
+  const similar = nameCheck.matches.filter((m) => m.id !== nameCheck.exact?.id)
 
   return (
     <div className="space-y-4">
@@ -93,7 +160,7 @@ export default function Products() {
                   <Td className="font-medium">{p.name}</Td>
                   <Td className="font-mono text-xs">{p.hsn_sac_code || '—'}</Td>
                   <Td>{p.unit}</Td>
-                  <Td className="font-mono text-xs">₹{Number(p.price).toLocaleString('en-IN')}</Td>
+                  <Td className="font-mono text-xs">{money(p.price)}</Td>
                   <Td>{p.tax_percentage}%</Td>
                   <Td>{p.is_service ? 'Service' : 'Goods'}</Td>
                   <Td className="text-right">
@@ -113,27 +180,72 @@ export default function Products() {
 
       <Modal
         open={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={closeModal}
         title={editing ? 'Edit Product' : 'New Product'}
         size="md"
         footer={
           <>
-            <Button variant="outline" onClick={() => setModalOpen(false)}>Cancel</Button>
-            <Button onClick={save} loading={saving}>{saving ? 'Saving…' : 'Save'}</Button>
+            <Button variant="outline" onClick={closeModal}>Cancel</Button>
+            <Button onClick={save} loading={saving}>
+              {saving ? 'Saving…' : nameCheck.exact && renaming && dupAcknowledged ? 'Save duplicate anyway' : 'Save'}
+            </Button>
           </>
         }
       >
         <div className="space-y-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <Label>Name *</Label>
-              <Input value={form.name} onChange={f('name')} placeholder="Product / Service name" />
+              <div className="flex items-center justify-between">
+                <Label>Name *</Label>
+                {nameCheck.checking && <span className="text-xs text-muted-foreground">Checking…</span>}
+              </div>
+              <Input
+                value={form.name}
+                onChange={f('name')}
+                placeholder="Product / Service name"
+                autoComplete="off"
+                className={nameCheck.exact ? 'border-destructive focus-visible:border-destructive focus-visible:ring-destructive/30' : ''}
+              />
             </div>
             <div>
               <Label>HSN / SAC Code</Label>
               <Input value={form.hsn_sac_code || ''} onChange={f('hsn_sac_code')} placeholder="e.g. 998313" />
             </div>
           </div>
+
+          {nameCheck.exact && (
+            <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-destructive">This product already exists</p>
+                  <ExistingProduct p={nameCheck.exact} onUse={openEdit} />
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {renaming
+                      ? 'Edit the existing product instead, or change the name. Saving twice will create a duplicate.'
+                      : 'Another product already uses this name. Renaming this one would keep them in conflict.'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {!nameCheck.exact && similar.length > 0 && (
+            <div className="rounded-md border border-border bg-muted/60 p-3">
+              <div className="flex items-start gap-2">
+                <Info className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium">
+                    {similar.length} similar product{similar.length > 1 ? 's' : ''} already exist{similar.length > 1 ? '' : 's'}
+                  </p>
+                  <div className="mt-1 max-h-40 space-y-0.5 overflow-y-auto">
+                    {similar.map((p) => <ExistingProduct key={p.id} p={p} onUse={openEdit} />)}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div>
             <Label>Description</Label>
             <Textarea rows={2} value={form.description || ''} onChange={f('description')} placeholder="Optional description" />
@@ -177,6 +289,20 @@ export default function Products() {
           </label>
         </div>
       </Modal>
+    </div>
+  )
+}
+
+function ExistingProduct({ p, onUse }) {
+  return (
+    <div className="flex items-center justify-between gap-3 rounded px-1 py-1 hover:bg-foreground/5">
+      <div className="min-w-0">
+        <p className="truncate text-sm font-medium">{p.name}</p>
+        <p className="truncate font-mono text-xs text-muted-foreground">
+          {money(p.price)} · {p.tax_percentage}% GST · {p.unit}{p.hsn_sac_code ? ` · ${p.hsn_sac_code}` : ''}
+        </p>
+      </div>
+      <Button variant="outline" size="sm" className="shrink-0" onClick={() => onUse(p)}>Edit this</Button>
     </div>
   )
 }

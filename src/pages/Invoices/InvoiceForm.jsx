@@ -7,6 +7,11 @@ import { Textarea } from '../../components/ui/textarea'
 import { Select } from '../../components/ui/select'
 import { Label } from '../../components/ui/label'
 import { useToast } from '../../components/ui/toast'
+import QuickProductModal from './QuickProductModal'
+
+const NEW_PRODUCT = '__new__'
+const TAX_RATES = ['0', '5', '12', '18', '28']
+const UNITS = ['pcs', 'set', 'kg', 'ltr', 'hrs', 'mtr', 'box']
 
 const newItem = () => ({ product: '', description: '', hsn_sac_code: '', unit: 'pcs', quantity: 1, unit_price: '', tax_percentage: 18, discount_percent: 0 })
 const fmt2 = (n) => Number(n || 0).toFixed(2)
@@ -23,7 +28,17 @@ function calcItem(item) {
   return { taxable, tax, total: taxable + tax }
 }
 
-export default function InvoiceForm({ editing, customers, products, onSaved, onCancel }) {
+const fillFromProduct = (item, p) => ({
+  ...item,
+  product: p.id,
+  description: p.name,
+  hsn_sac_code: p.hsn_sac_code || '',
+  unit: p.unit,
+  unit_price: p.price,
+  tax_percentage: Number(p.tax_percentage),
+})
+
+export default function InvoiceForm({ editing, customers, products, onProductCreated, onSaved, onCancel }) {
   const toast = useToast()
   const today = new Date().toISOString().slice(0, 10)
 
@@ -33,6 +48,8 @@ export default function InvoiceForm({ editing, customers, products, onSaved, onC
   })
   const [items, setItems] = useState([newItem()])
   const [saving, setSaving] = useState(false)
+  // Index of the line item that asked for a new product, or null when the quick-add modal is closed.
+  const [quickAddRow, setQuickAddRow] = useState(null)
 
   useEffect(() => {
     if (editing) {
@@ -66,16 +83,33 @@ export default function InvoiceForm({ editing, customers, products, onSaved, onC
     next[i] = { ...next[i], [k]: v }
     if (k === 'product' && v) {
       const p = products.find((p) => String(p.id) === String(v))
-      if (p) {
-        next[i].description = p.name
-        next[i].hsn_sac_code = p.hsn_sac_code || ''
-        next[i].unit = p.unit
-        next[i].unit_price = p.price
-        next[i].tax_percentage = Number(p.tax_percentage)
-      }
+      if (p) next[i] = fillFromProduct(next[i], p)
     }
     return next
   })
+
+  const onProductSelect = (i, v) => {
+    if (v === NEW_PRODUCT) setQuickAddRow(i)
+    else setItem(i, 'product', v)
+  }
+
+  // Seed the quick-add form with whatever the user already typed on that line.
+  const quickAddInitial = () => {
+    const it = items[quickAddRow] || {}
+    const initial = { name: it.product ? '' : it.description || '' }
+    if (it.hsn_sac_code) initial.hsn_sac_code = it.hsn_sac_code
+    if (UNITS.includes(it.unit)) initial.unit = it.unit
+    if (it.unit_price) initial.price = it.unit_price
+    if (TAX_RATES.includes(String(it.tax_percentage))) initial.tax_percentage = String(it.tax_percentage)
+    return initial
+  }
+
+  const handleProductCreated = (p) => {
+    onProductCreated?.(p)
+    const row = quickAddRow
+    setItems((prev) => prev.map((it, idx) => (idx === row ? fillFromProduct(it, p) : it)))
+    setQuickAddRow(null)
+  }
 
   const addItem = () => setItems((prev) => [...prev, newItem()])
   const removeItem = (i) => setItems((prev) => prev.filter((_, idx) => idx !== i))
@@ -171,8 +205,9 @@ export default function InvoiceForm({ editing, customers, products, onSaved, onC
                 return (
                   <tr key={i}>
                     <td className="p-1.5">
-                      <Select value={it.product} onChange={(e) => setItem(i, 'product', e.target.value)} className="h-8 text-xs">
+                      <Select value={it.product} onChange={(e) => onProductSelect(i, e.target.value)} className="h-8 text-xs">
                         <option value="">— select —</option>
+                        <option value={NEW_PRODUCT}>+ Add new product…</option>
                         {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
                       </Select>
                     </td>
@@ -261,6 +296,13 @@ export default function InvoiceForm({ editing, customers, products, onSaved, onC
         <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
         <Button onClick={save} loading={saving}>{saving ? 'Saving…' : (editing ? 'Update Invoice' : 'Create Invoice')}</Button>
       </div>
+
+      <QuickProductModal
+        open={quickAddRow !== null}
+        initial={quickAddRow !== null ? quickAddInitial() : null}
+        onClose={() => setQuickAddRow(null)}
+        onCreated={handleProductCreated}
+      />
     </div>
   )
 }
