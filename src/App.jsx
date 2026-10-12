@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { ToastProvider } from './components/ui/toast'
-import { ThemeProvider } from './context/ThemeContext'
 import { AuthProvider } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import AppShell from './components/layout/AppShell'
@@ -14,27 +13,25 @@ import Login from './pages/Login/Login'
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <BrowserRouter>
-        <AuthProvider>
-          <ToastProvider>
-            <Routes>
-              <Route path="/login" element={<Login />} />
+    <BrowserRouter>
+      <AuthProvider>
+        <ToastProvider>
+          <Routes>
+            <Route path="/login" element={<Login />} />
 
-              <Route element={<ProtectedRoute />}>
-                <Route path="/" element={<AppShell />}>
-                  <Route index element={<Dashboard />} />
-                  <Route path="invoices" element={<Invoices />} />
-                  <Route path="payments" element={<Payments />} />
-                  <Route path="customers" element={<Customers />} />
-                  <Route path="products" element={<Products />} />
-                  <Route path="company" element={<Company />} />
-                </Route>
+            <Route element={<ProtectedRoute />}>
+              <Route path="/" element={<AppShell />}>
+                <Route index element={<Dashboard />} />
+                <Route path="invoices" element={<Invoices />} />
+                <Route path="payments" element={<Payments />} />
+                <Route path="customers" element={<Customers />} />
+                <Route path="products" element={<Products />} />
+                <Route path="company" element={<Company />} />
               </Route>
-            </Routes>
-          </ToastProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </ThemeProvider>
+            </Route>
+          </Routes>
+        </ToastProvider>
+      </AuthProvider>
+    </BrowserRouter>
   )
 }

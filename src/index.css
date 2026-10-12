@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: ui-monospace, "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
 
   --color-brand-50: #eef4ff;
@@ -16,70 +16,9 @@
   --color-brand-900: #2e327f;
 }
 
-/* shadcn-style semantic tokens — light by default, dark via [data-theme="dark"] or OS preference */
+/* shadcn-style semantic tokens — the app is dark-only */
 :root {
-  --background: 255 255 255;
-  --foreground: 15 23 42;
-  --card: 255 255 255;
-  --card-foreground: 15 23 42;
-  --popover: 255 255 255;
-  --popover-foreground: 15 23 42;
-  --primary: 91 111 240;
-  --primary-foreground: 255 255 255;
-  --secondary: 241 245 249;
-  --secondary-foreground: 15 23 42;
-  --muted: 246 248 251;
-  --muted-foreground: 100 116 139;
-  --accent: 238 242 255;
-  --accent-foreground: 67 56 202;
-  --destructive: 220 38 38;
-  --destructive-foreground: 255 255 255;
-  --success: 22 163 74;
-  --success-foreground: 255 255 255;
-  --warning: 217 119 6;
-  --warning-foreground: 255 255 255;
-  --border: 226 232 240;
-  --input: 226 232 240;
-  --ring: 91 111 240;
-  --sidebar: 17 24 39;
-  --sidebar-foreground: 226 232 240;
-  --sidebar-border: 31 41 55;
-  --sidebar-accent: 30 41 59;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --background: 10 12 20;
-    --foreground: 226 232 240;
-    --card: 17 20 31;
-    --card-foreground: 226 232 240;
-    --popover: 17 20 31;
-    --popover-foreground: 226 232 240;
-    --primary: 118 135 250;
-    --primary-foreground: 12 14 24;
-    --secondary: 30 34 48;
-    --secondary-foreground: 226 232 240;
-    --muted: 24 27 39;
-    --muted-foreground: 148 163 184;
-    --accent: 30 32 58;
-    --accent-foreground: 165 176 250;
-    --destructive: 239 68 68;
-    --destructive-foreground: 12 14 24;
-    --success: 34 197 94;
-    --success-foreground: 12 14 24;
-    --warning: 245 158 11;
-    --warning-foreground: 12 14 24;
-    --border: 39 43 58;
-    --input: 39 43 58;
-    --ring: 118 135 250;
-    --sidebar: 8 10 16;
-    --sidebar-foreground: 203 213 225;
-    --sidebar-border: 26 29 41;
-    --sidebar-accent: 22 26 40;
-  }
-}
-
-:root[data-theme="dark"] {
+  color-scheme: dark;
   --background: 10 12 20;
   --foreground: 226 232 240;
   --card: 17 20 31;
@@ -170,31 +109,131 @@ body {
   background: rgb(var(--muted-foreground) / 0.5);
 }
 
-@keyframes overlay-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+::selection { background: rgb(139 92 246 / 0.35); }
+body { font-feature-settings: "cv11", "ss01"; }
+
+/* ───────────── Nexa-style effects ───────────── */
+
+@utility glass {
+  background: linear-gradient(180deg, rgb(var(--card) / 0.78), rgb(var(--card) / 0.55));
+  border: 1px solid rgb(var(--foreground) / 0.08);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
 }
-@keyframes overlay-out {
-  from { opacity: 1; }
-  to { opacity: 0; }
+@utility glass-dark {
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.06), rgb(255 255 255 / 0.02));
+  border: 1px solid rgb(255 255 255 / 0.08);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
 }
+@utility text-gradient {
+  background: linear-gradient(100deg, #a78bfa 0%, #818cf8 40%, #22d3ee 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+@utility text-gradient-light {
+  background: linear-gradient(100deg, #c4b5fd 0%, #818cf8 40%, #67e8f9 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+@utility grid-bg {
+  background-image:
+    linear-gradient(rgb(var(--foreground) / 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(var(--foreground) / 0.04) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 30%, transparent 75%);
+}
+@utility grid-bg-dark {
+  background-image:
+    linear-gradient(rgb(255 255 255 / 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 80% 70% at 70% 40%, #000 25%, transparent 75%);
+}
+
+@property --angle { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+@keyframes spin-angle { to { --angle: 360deg; } }
+
+/* Custom classes live in the components layer so Tailwind utilities can still override them */
+@layer components {
+/* Cursor-following gradient border + inner spotlight (set --mx / --my on mousemove) */
+.ring-glow { position: relative; isolation: isolate; }
+.ring-glow::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px;
+  background: radial-gradient(380px circle at var(--mx, 50%) var(--my, 50%), rgb(167 139 250 / 0.75), rgb(34 211 238 / 0.3) 40%, transparent 70%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  opacity: 0; transition: opacity .4s; pointer-events: none; z-index: 2;
+}
+.ring-glow::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: -1;
+  background: radial-gradient(520px circle at var(--mx, 50%) var(--my, 50%), rgb(139 92 246 / 0.07), transparent 60%);
+  opacity: 0; transition: opacity .4s;
+}
+.ring-glow:hover::before, .ring-glow:hover::after { opacity: 1; }
+
+/* Glossy sweep across primary buttons */
+.btn-shine { position: relative; overflow: hidden; }
+.btn-shine::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(110deg, transparent 30%, rgb(255 255 255 / 0.35) 50%, transparent 70%);
+  transform: translateX(-120%); transition: transform .7s cubic-bezier(.22,1,.36,1);
+}
+.btn-shine:hover::after { transform: translateX(120%); }
+
+/* Rotating conic border (logo tile, live chips) */
+.conic-ring { position: relative; }
+.conic-ring::before {
+  content: ""; position: absolute; inset: -1.5px; border-radius: inherit; padding: 1.5px; pointer-events: none;
+  background: conic-gradient(from var(--angle), #8b5cf6, #22d3ee, #6366f1, #8b5cf6);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  animation: spin-angle 4s linear infinite;
+}
+
+}
+
+/* Aurora background blobs */
+@keyframes aurora-a { 0%,100% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(8%, 6%, 0) scale(1.15); } }
+@keyframes aurora-b { 0%,100% { transform: translate3d(0,0,0) scale(1.1); } 50% { transform: translate3d(-10%, -4%, 0) scale(0.95); } }
+@keyframes aurora-c { 0%,100% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(-6%, 8%, 0) scale(1.2); } }
+.aurora-a { animation: aurora-a 18s ease-in-out infinite; }
+.aurora-b { animation: aurora-b 22s ease-in-out infinite; }
+.aurora-c { animation: aurora-c 26s ease-in-out infinite; }
+
+@keyframes pulse-ring { 0% { transform: scale(.8); opacity: .8; } 100% { transform: scale(2.6); opacity: 0; } }
+.pulse-ring { animation: pulse-ring 2s cubic-bezier(.2,.6,.4,1) infinite; }
+
+@keyframes shimmer { from { background-position: -200% 0; } to { background-position: 200% 0; } }
+.skeleton {
+  background: linear-gradient(90deg, rgb(var(--muted)) 25%, rgb(var(--foreground) / 0.06) 50%, rgb(var(--muted)) 75%);
+  background-size: 200% 100%; animation: shimmer 1.6s linear infinite;
+}
+
+/* ───────────── Radix animation keyframes ───────────── */
+@keyframes overlay-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes overlay-out { from { opacity: 1; } to { opacity: 0; } }
 @keyframes content-in {
-  from { opacity: 0; transform: translateY(8px) scale(0.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from { opacity: 0; transform: perspective(1200px) translateY(14px) rotateX(10deg) scale(0.96); filter: blur(4px); }
+  to { opacity: 1; transform: perspective(1200px) translateY(0) rotateX(0) scale(1); filter: blur(0); }
 }
 @keyframes content-out {
-  from { opacity: 1; transform: translateY(0) scale(1); }
-  to { opacity: 0; transform: translateY(8px) scale(0.98); }
+  from { opacity: 1; transform: perspective(1200px) translateY(0) rotateX(0) scale(1); }
+  to { opacity: 0; transform: perspective(1200px) translateY(10px) rotateX(8deg) scale(0.97); }
 }
-@keyframes drawer-in {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(0); }
+@keyframes pop-in {
+  from { opacity: 0; transform: translateY(-6px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
-@keyframes drawer-out {
-  from { transform: translateX(0); }
-  to { transform: translateX(-100%); }
-}
+@keyframes drawer-in { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+@keyframes drawer-out { from { transform: translateX(0); } to { transform: translateX(-100%); } }
 @keyframes toast-in {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateX(24px) scale(0.96); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
 }
