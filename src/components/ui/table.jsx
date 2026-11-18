@@ -12,7 +12,7 @@ export function THead({ className, ...props }) {
   return (
     <thead
       className={cn(
-        'border-b border-foreground/[0.06] bg-foreground/[0.025] text-[11px] uppercase tracking-wider text-muted-foreground',
+        'border-b border-foreground/[0.075] bg-white/[0.018] text-[10px] font-semibold uppercase tracking-[0.13em] text-muted-foreground',
         className
       )}
       {...props}
@@ -21,7 +21,7 @@ export function THead({ className, ...props }) {
 }
 
 export function TBody({ className, ...props }) {
-  return <tbody className={cn('divide-y divide-foreground/[0.05]', className)} {...props} />
+  return <tbody className={cn('divide-y divide-foreground/[0.055]', className)} {...props} />
 }
 
 export function Tr({ className, ...props }) {

@@ -5,6 +5,7 @@ import { Modal } from '../../components/ui/modal'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
 import { Label } from '../../components/ui/label'
+import { Textarea } from '../../components/ui/textarea'
 import { Card } from '../../components/ui/card'
 import { Table, THead, TBody, Tr, Th, Td, TableWrap, EmptyRow } from '../../components/ui/table'
 import { Pagination } from '../../components/ui/pagination'
@@ -12,6 +13,19 @@ import { CenteredSpinner } from '../../components/ui/spinner'
 import { useToast } from '../../components/ui/toast'
 
 const EMPTY = { name: '', phone: '', email: '', address: '', city: '', state: '', state_code: '', pincode: '', gst_number: '' }
+
+// The address is now one free-text box (like the company profile). Customers saved
+// before this change may still have separate city/pincode values: fold them into the
+// address text and clear the old fields, so nothing is lost and the invoice PDF does
+// not print the city/pincode twice.
+function toSingleAddress(c) {
+  const city = (c.city || '').trim()
+  const pincode = (c.pincode || '').trim()
+  let address = (c.address || '').trim()
+  const extra = [city, pincode].filter((part) => part && !address.includes(part)).join(' - ')
+  if (extra) address = address ? `${address}\n${extra}` : extra
+  return { ...c, address, city: '', pincode: '' }
+}
 
 export default function Customers() {
   const [rows, setRows] = useState([])
@@ -39,7 +53,7 @@ export default function Customers() {
   useEffect(() => { setPage(1); load(search, 1) }, [search]) // eslint-disable-line
 
   const openCreate = () => { setEditing(null); setForm(EMPTY); setModalOpen(true) }
-  const openEdit = (c) => { setEditing(c); setForm({ ...c }); setModalOpen(true) }
+  const openEdit = (c) => { setEditing(c); setForm(toSingleAddress(c)); setModalOpen(true) }
 
   const save = async () => {
     if (!form.name) return toast('Name is required', 'error')
@@ -78,7 +92,7 @@ export default function Customers() {
           <Table>
             <THead>
               <Tr>
-                <Th>Name</Th><Th>Phone</Th><Th>Email</Th><Th>City</Th><Th>GST No.</Th><Th className="text-right">Actions</Th>
+                <Th>Name</Th><Th>Phone</Th><Th>Email</Th><Th>State</Th><Th>GST No.</Th><Th className="text-right">Actions</Th>
               </Tr>
             </THead>
             <TBody>
@@ -91,7 +105,7 @@ export default function Customers() {
                   <Td className="font-medium">{c.name}</Td>
                   <Td>{c.phone || '—'}</Td>
                   <Td>{c.email || '—'}</Td>
-                  <Td>{c.city || '—'}</Td>
+                  <Td>{c.state || '—'}</Td>
                   <Td className="font-mono text-xs">{c.gst_number || '—'}</Td>
                   <Td className="text-right">
                     <div className="flex justify-end gap-1.5">
@@ -143,26 +157,16 @@ export default function Customers() {
           </div>
           <div>
             <Label>Address</Label>
-            <Input value={form.address} onChange={f('address')} placeholder="Street address" />
-          </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <div>
-              <Label>City</Label>
-              <Input value={form.city} onChange={f('city')} placeholder="City" />
-            </div>
-            <div>
-              <Label>State</Label>
-              <Input value={form.state} onChange={f('state')} placeholder="State" />
-            </div>
-            <div>
-              <Label>State Code</Label>
-              <Input value={form.state_code} onChange={f('state_code')} placeholder="e.g. 33" />
-            </div>
+            <Textarea rows={3} value={form.address || ''} onChange={f('address')} placeholder="Full address" />
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <Label>Pincode</Label>
-              <Input value={form.pincode} onChange={f('pincode')} placeholder="Pincode" />
+              <Label>State</Label>
+              <Input value={form.state || ''} onChange={f('state')} placeholder="State" />
+            </div>
+            <div>
+              <Label>State Code</Label>
+              <Input value={form.state_code || ''} onChange={f('state_code')} placeholder="e.g. 33" />
             </div>
           </div>
         </div>

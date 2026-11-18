@@ -63,12 +63,12 @@ function SidebarNav({ onNavigate, id }) {
 
       <div className="relative flex items-center gap-3 px-5 py-5">
         <motion.div
-          whileHover={{ rotateY: 180 }}
-          transition={{ duration: 0.8, ease }}
-          style={{ transformPerspective: 600 }}
-          className="conic-ring flex h-9 w-9 items-center justify-center rounded-xl bg-[#0b0b12] text-xs font-bold tracking-wider text-white shadow-[0_0_24px_-4px_rgb(139_92_246/0.8)]"
+          whileHover={{ rotateX: 10, rotateY: -12, scale: 1.06 }}
+          transition={{ type: 'spring', stiffness: 260, damping: 18 }}
+          style={{ transformPerspective: 700, transformStyle: 'preserve-3d' }}
+          className="brand-mark flex h-9 w-9 items-center justify-center rounded-xl text-xs font-bold tracking-wider text-white"
         >
-          JV
+          <span>JV</span>
         </motion.div>
         <div>
           <div className="text-sm font-semibold text-white">
@@ -153,7 +153,7 @@ export default function AppShell() {
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       {/* Desktop sidebar */}
-      <aside className="hidden w-64 shrink-0 border-r border-white/[0.06] bg-[#07070d] lg:block">
+      <aside className="hidden w-64 shrink-0 border-r border-white/[0.075] bg-[#090b13] lg:block">
         <SidebarNav id="desktop" />
       </aside>
 
@@ -170,7 +170,7 @@ export default function AppShell() {
       <div className="relative isolate flex min-w-0 flex-1 flex-col">
         <AuroraBackground />
 
-        <header className="relative z-10 flex h-16 shrink-0 items-center justify-between gap-3 border-b border-foreground/[0.06] bg-background/50 px-4 backdrop-blur-xl sm:px-6">
+        <header className="relative z-10 flex h-[68px] shrink-0 items-center justify-between gap-3 border-b border-foreground/[0.075] bg-[#090b13]/65 px-4 shadow-[0_8px_32px_rgb(0_0_0/0.12)] backdrop-blur-2xl sm:px-7">
           <div className="flex items-center gap-3">
             <button
               className="rounded-full p-1.5 text-muted-foreground hover:bg-violet-500/10 lg:hidden"
@@ -223,7 +223,7 @@ export default function AppShell() {
           </div>
         </header>
 
-        <main className="relative flex-1 overflow-y-auto p-4 sm:p-6" style={{ perspective: 1400 }}>
+        <main className="relative flex-1 overflow-y-auto p-4 sm:p-7 xl:px-9 xl:py-8" style={{ perspective: 1400 }}>
           <motion.div
             key={pathname}
             initial={{ opacity: 0, y: 16, rotateX: 4, filter: 'blur(8px)' }}

@@ -7,7 +7,7 @@ export function Card({ className, onMouseMove, ...props }) {
       onMouseMove={(e) => { trackPointer(e); onMouseMove?.(e) }}
       className={cn(
         'ring-glow glass overflow-hidden rounded-2xl text-card-foreground',
-        'shadow-[0_1px_0_0_rgb(255_255_255/0.05)_inset,0_12px_40px_-20px_rgb(76_29_149/0.35)]',
+        'shadow-[0_1px_0_0_rgb(255_255_255/0.045)_inset,0_18px_48px_-28px_rgb(0_0_0/0.9)]',
         className
       )}
       {...props}
@@ -18,7 +18,7 @@ export function Card({ className, onMouseMove, ...props }) {
 export function CardHeader({ className, ...props }) {
   return (
     <div
-      className={cn('flex items-center justify-between gap-3 border-b border-foreground/[0.06] px-5 py-4', className)}
+      className={cn('flex items-center justify-between gap-3 border-b border-foreground/[0.075] bg-white/[0.012] px-5 py-4', className)}
       {...props}
     />
   )

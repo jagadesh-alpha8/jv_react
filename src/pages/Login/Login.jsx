@@ -132,7 +132,13 @@ export default function Login() {
               <div className="space-y-1.5">
                 <label htmlFor="username" className="text-sm font-medium">Username</label>
                 <div className="relative">
-                  <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <User
+                    className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2"
+                    stroke="#fff"
+                    strokeWidth={2.5}
+                    opacity={1}
+                    style={{ color: '#fff', filter: 'drop-shadow(0 0 4px rgb(255 255 255 / 0.35))' }}
+                  />
                   <Input
                     id="username"
                     value={username}
@@ -147,7 +153,13 @@ export default function Login() {
               <div className="space-y-1.5">
                 <label htmlFor="password" className="text-sm font-medium">Password</label>
                 <div className="relative">
-                  <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Lock
+                    className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2"
+                    stroke="#fff"
+                    strokeWidth={2.5}
+                    opacity={1}
+                    style={{ color: '#fff', filter: 'drop-shadow(0 0 4px rgb(255 255 255 / 0.35))' }}
+                  />
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
