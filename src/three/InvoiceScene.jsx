@@ -298,7 +298,7 @@ function Coins() {
 }
 
 /* nodes + proximity edges drifting behind the invoice */
-function Network({ count = 80 }) {
+export function Network({ count = 80 }) {
   const ref = useRef(null)
   const { positions, lines } = useMemo(() => {
     const r = rng(42)
@@ -338,7 +338,7 @@ function Network({ count = 80 }) {
 }
 
 /* payment particles streaming into the invoice */
-function Streams({ count = 220 }) {
+export function Streams({ count = 220 }) {
   const ref = useRef(null)
   const data = useMemo(() => {
     const r = rng(7)
@@ -391,7 +391,7 @@ function Streams({ count = 220 }) {
   )
 }
 
-function Rig() {
+export function Rig() {
   const { camera, pointer } = useThree()
   useFrame((_, dt) => {
     camera.position.x = THREE.MathUtils.damp(camera.position.x, pointer.x * 0.35, 2, dt)

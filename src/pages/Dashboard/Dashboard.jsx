@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts'
@@ -30,6 +30,10 @@ function HeroBanner({ data, scoped, customers, customerId, setCustomerId }) {
   const due = Number(data?.total_due || 0)
   const collected = Math.max(revenue - due, 0)
   const rate = revenue > 0 ? Math.round((collected / revenue) * 100) : 0
+  // Shape the 3D bar chart from the last 12 months of billing (falls back to a
+  // decorative shape inside the scene when there is too little history).
+  const monthlyKey = (data?.monthly_revenue || []).map((m) => m.revenue).join(',')
+  const monthlyValues = useMemo(() => (monthlyKey ? monthlyKey.split(',').map(Number) : []), [monthlyKey])
 
   return (
     <Reveal className="relative isolate overflow-hidden rounded-3xl border border-white/[0.08] bg-[#07070d] text-white shadow-[0_30px_80px_-30px_rgb(76_29_149/0.6)]">
@@ -93,7 +97,7 @@ function HeroBanner({ data, scoped, customers, customerId, setCustomerId }) {
 
         <div className="relative h-[240px] sm:h-[300px] lg:h-[340px]">
           <Suspense fallback={<div className="absolute inset-0 m-auto h-40 w-32 animate-pulse rounded-2xl bg-violet-500/10" />}>
-            <Hero3D className="absolute inset-0" compact z={5.6} />
+            <Hero3D className="absolute inset-0" compact z={5.6} variant="growth" values={monthlyValues} />
           </Suspense>
         </div>
       </div>
