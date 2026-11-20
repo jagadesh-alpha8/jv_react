@@ -3,7 +3,7 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
 import {
   LayoutDashboard, FileText, CreditCard, Users, Package, Building2,
-  Menu, LogOut, ChevronDown, User,
+  Menu, LogOut, ChevronDown, User, Calculator,
 } from 'lucide-react'
 import { dashboardApi } from '../../api'
 import { useAuth } from '../../context/AuthContext'
@@ -33,6 +33,10 @@ const navGroups = [
     ],
   },
   {
+    section: 'Tools',
+    items: [{ to: '/margin-calculator', label: 'Margin Calculator', icon: Calculator }],
+  },
+  {
     section: 'Settings',
     items: [{ to: '/company', label: 'Company', icon: Building2 }],
   },
@@ -45,6 +49,7 @@ const pageTitles = {
   '/customers': 'Customers',
   '/products': 'Products',
   '/company': 'Company Profile',
+  '/margin-calculator': 'GST & Margin Calculator',
 }
 
 const statusStyle = {
@@ -61,21 +66,27 @@ function SidebarNav({ onNavigate, id }) {
       <div aria-hidden className="pointer-events-none absolute -bottom-24 -right-20 h-56 w-56 rounded-full bg-cyan-500/15 blur-[80px]" />
       <div aria-hidden className="grid-bg-dark pointer-events-none absolute inset-0 opacity-60" />
 
-      <div className="relative flex items-center gap-3 px-5 py-5">
-        <motion.div
-          whileHover={{ rotateX: 10, rotateY: -12, scale: 1.06 }}
-          transition={{ type: 'spring', stiffness: 260, damping: 18 }}
-          style={{ transformPerspective: 700, transformStyle: 'preserve-3d' }}
-          className="brand-mark flex h-9 w-9 items-center justify-center rounded-xl text-xs font-bold tracking-wider text-white"
+      {/* Glossy app icon — the only brand mark in the sidebar; links home. */}
+      <div className="relative px-5 py-5">
+        <NavLink
+          to="/"
+          onClick={onNavigate}
+          title="GSTBill · Dashboard"
+          aria-label="GSTBill, go to Dashboard"
+          className="inline-block rounded-[13px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60"
         >
-          <span>JV</span>
-        </motion.div>
-        <div>
-          <div className="text-sm font-semibold text-white">
-            GST<span className="text-gradient-light">Bill</span>
-          </div>
-          <div className="text-[11px] text-white/45">Billing System</div>
-        </div>
+          <motion.div
+            whileHover={{ rotateX: 10, rotateY: -12, scale: 1.06 }}
+            whileTap={{ scale: 0.96 }}
+            transition={{ type: 'spring', stiffness: 260, damping: 18 }}
+            style={{ transformPerspective: 700 }}
+            className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-[13px] bg-[linear-gradient(145deg,#a78bfa,#6d28d9_55%,#3b0764)] shadow-[0_10px_22px_-6px_rgb(0_0_0/0.7),inset_0_-4px_8px_rgb(0_0_0/0.35),inset_0_2px_2px_rgb(255_255_255/0.45)]"
+          >
+            {/* top gloss highlight */}
+            <span aria-hidden className="pointer-events-none absolute -left-[10%] -right-[10%] -top-[40%] h-[85%] rounded-[50%] bg-gradient-to-b from-white/55 to-white/0" />
+            <span aria-hidden className="relative text-2xl font-semibold leading-none text-white [text-shadow:0_2px_3px_rgb(0_0_0/0.45)]">₹</span>
+          </motion.div>
+        </NavLink>
       </div>
 
       <LayoutGroup id={id}>

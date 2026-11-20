@@ -9,6 +9,7 @@ import Payments from './pages/Payments/Payments'
 import Customers from './pages/Customers/Customers'
 import Products from './pages/Products/Products'
 import Company from './pages/Company/Company'
+import MarginCalculator from './pages/Calculator/MarginCalculator'
 import Login from './pages/Login/Login'
 
 export default function App() {
@@ -27,6 +28,7 @@ export default function App() {
                 <Route path="customers" element={<Customers />} />
                 <Route path="products" element={<Products />} />
                 <Route path="company" element={<Company />} />
+                <Route path="margin-calculator" element={<MarginCalculator />} />
               </Route>
             </Route>
           </Routes>
