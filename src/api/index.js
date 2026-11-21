@@ -31,6 +31,8 @@ export const customersApi = {
   update: (id, data) => api.patch(`/customers/${id}/`, data),
   remove: (id) => api.delete(`/customers/${id}/`),
   ledger: (id) => api.get(`/customers/${id}/ledger/`),
+  hide: (id) => api.post(`/customers/${id}/hide/`),
+  restore: (id) => api.post(`/customers/${id}/restore/`),
 }
 
 // ── Products ──
@@ -83,9 +85,58 @@ export const invoicesApi = {
 // ── Payments ──
 export const paymentsApi = {
   list: (params) => api.get('/payments/', { params }),
+  update: (id, data) => api.patch(`/payments/${id}/`, data),
+  remove: (id) => api.delete(`/payments/${id}/`),
 }
 
 // ── Dashboard ──
 export const dashboardApi = {
   get: (params) => api.get('/dashboard/', { params }),
+}
+
+
+// ── Non-GST billing (separate ledger; shares customers and products) ──
+async function fetchNonGstPdfUrl(id) {
+  const res = await api.get(`/nongst/bills/${id}/pdf/`, { responseType: 'blob' })
+  return URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }))
+}
+
+export const nongstApi = {
+  bills: (params) => api.get('/nongst/bills/', { params }),
+  bill: (id) => api.get(`/nongst/bills/${id}/`),
+  createBill: (data) => api.post('/nongst/bills/', data),
+  updateBill: (id, data) => api.patch(`/nongst/bills/${id}/`, data),
+  removeBill: (id) => api.delete(`/nongst/bills/${id}/`),
+  lastBill: () => api.get('/nongst/bills/last/'),
+  financialYears: () => api.get('/nongst/bills/financial_years/'),
+  payments: (params) => api.get('/nongst/payments/', { params }),
+  createPayment: (data) => api.post('/nongst/payments/', data),
+  updatePayment: (id, data) => api.patch(`/nongst/payments/${id}/`, data),
+  removePayment: (id) => api.delete(`/nongst/payments/${id}/`),
+  balances: (params) => api.get('/nongst/balances/', { params }),
+  dashboard: (params) => api.get('/nongst/dashboard/', { params }),
+  openPdf: async (id) => {
+    const url = await fetchNonGstPdfUrl(id)
+    window.open(url, '_blank')
+    setTimeout(() => URL.revokeObjectURL(url), 60000)
+  },
+  downloadPdf: async (id, filename) => {
+    const url = await fetchNonGstPdfUrl(id)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename || `Bill_${id}.pdf`
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    setTimeout(() => URL.revokeObjectURL(url), 30000)
+  },
+}
+
+// ── Customer statements (ledger for a date range); kind = 'gst' | 'nongst', kept separate ──
+export const statementsApi = {
+  get: (kind, params) => api.get(`/statements/${kind}/`, { params }),
+  pdfUrl: async (kind, params) => {
+    const res = await api.get(`/statements/${kind}/pdf/`, { params, responseType: 'blob' })
+    return URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }))
+  },
 }

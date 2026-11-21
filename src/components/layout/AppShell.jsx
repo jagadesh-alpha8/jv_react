@@ -3,7 +3,7 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
 import {
   LayoutDashboard, FileText, CreditCard, Users, Package, Building2,
-  Menu, LogOut, ChevronDown, User, Calculator,
+  Menu, LogOut, ChevronDown, User, Calculator, PieChart, Receipt, Wallet, BookOpen, ScrollText,
 } from 'lucide-react'
 import { dashboardApi } from '../../api'
 import { useAuth } from '../../context/AuthContext'
@@ -13,16 +13,24 @@ import { AuroraBackground } from '../fx/AuroraBackground'
 import { ease } from '../fx/motion'
 import { cn } from '../../lib/cn'
 
+// Grouped by book: GST and Non-GST mirror each other (Dashboard -> Bills -> Payments -> Statement).
 const navGroups = [
   {
-    section: 'Main',
-    items: [{ to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true }],
-  },
-  {
-    section: 'Billing',
+    section: 'GST Billing',
     items: [
+      { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
       { to: '/invoices', label: 'Invoices', icon: FileText },
       { to: '/payments', label: 'Payments', icon: CreditCard },
+      { to: '/statement', label: 'Statement', icon: BookOpen },
+    ],
+  },
+  {
+    section: 'Non-GST Billing',
+    items: [
+      { to: '/non-gst', label: 'Dashboard', icon: PieChart, end: true },
+      { to: '/non-gst/bills', label: 'Bills', icon: Receipt },
+      { to: '/non-gst/payments', label: 'Payments', icon: Wallet },
+      { to: '/non-gst/statement', label: 'Statement', icon: ScrollText },
     ],
   },
   {
@@ -43,13 +51,18 @@ const navGroups = [
 ]
 
 const pageTitles = {
-  '/': 'Dashboard',
-  '/invoices': 'Invoices',
-  '/payments': 'Payments',
+  '/': 'GST Dashboard',
+  '/invoices': 'GST Invoices',
+  '/payments': 'GST Payments',
+  '/statement': 'GST Customer Statement',
   '/customers': 'Customers',
   '/products': 'Products',
   '/company': 'Company Profile',
   '/margin-calculator': 'GST & Margin Calculator',
+  '/non-gst': 'Non-GST Dashboard',
+  '/non-gst/bills': 'Non-GST Bills',
+  '/non-gst/payments': 'Non-GST Payments',
+  '/non-gst/statement': 'Non-GST Customer Statement',
 }
 
 const statusStyle = {
