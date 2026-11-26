@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard/Dashboard'
 import Invoices from './pages/Invoices/Invoices'
 import Payments from './pages/Payments/Payments'
 import Customers from './pages/Customers/Customers'
+import CustomerPage from './pages/Customers/CustomerPage'
 import Products from './pages/Products/Products'
 import Company from './pages/Company/Company'
 import MarginCalculator from './pages/Calculator/MarginCalculator'
@@ -31,6 +32,7 @@ export default function App() {
                 <Route path="payments" element={<Payments />} />
                 <Route path="statement" element={<StatementPage key="gst" kind="gst" />} />
                 <Route path="customers" element={<Customers />} />
+                <Route path="customers/:id" element={<CustomerPage />} />
                 <Route path="products" element={<Products />} />
                 <Route path="company" element={<Company />} />
                 <Route path="margin-calculator" element={<MarginCalculator />} />

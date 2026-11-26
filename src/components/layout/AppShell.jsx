@@ -162,7 +162,7 @@ function SidebarNav({ onNavigate, id }) {
 
 export default function AppShell() {
   const { pathname } = useLocation()
-  const title = pageTitles[pathname] || 'GST Bill'
+  const title = pageTitles[pathname] || (pathname.startsWith('/customers/') ? 'Customer' : 'GST Bill')
   const [fy, setFy] = useState(null)
   const [apiStatus, setApiStatus] = useState('checking')
   const [drawerOpen, setDrawerOpen] = useState(false)

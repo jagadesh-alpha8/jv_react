@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Printer, Download } from 'lucide-react'
 import { invoicesApi } from '../../api'
 import { Modal } from '../../components/ui/modal'
@@ -84,7 +85,7 @@ export default function InvoiceDetail({ open, invoiceId, onClose, onPay }) {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="rounded-lg border border-border p-3.5">
               <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Bill To</div>
-              <div className="mt-1 font-semibold">{customer.name || '—'}</div>
+              <div className="mt-1 font-semibold">{customer.id ? <Link to={`/customers/${customer.id}`} onClick={onClose} className="hover:text-primary hover:underline">{customer.name}</Link> : '—'}</div>
               <div className="text-muted-foreground">{customer.address || ''}</div>
               <div className="text-muted-foreground">{customer.phone || ''}</div>
               {customer.gst_number && <div className="mt-1"><span className="font-semibold">GSTIN:</span> {customer.gst_number}</div>}

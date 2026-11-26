@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Download, Eye, FileSpreadsheet } from 'lucide-react'
+import { Download, Eye, FileSpreadsheet, Share2 } from 'lucide-react'
 import { customersApi, statementsApi } from '../../api'
 import { Button } from '../../components/ui/button'
 import { Input } from '../../components/ui/input'
@@ -34,13 +34,14 @@ const PRESETS = [
   ['last_fy', 'Last financial year', () => { const t = new Date(); const y = (t.getMonth() >= 3 ? t.getFullYear() : t.getFullYear() - 1) - 1; return [new Date(y, 3, 1), new Date(y + 1, 2, 31)] }],
 ]
 
-/** Customer statement for one ledger. `kind` is 'gst' or 'nongst'; the two never mix. */
-export default function StatementPage({ kind }) {
+/** Customer statement for one ledger. `kind` is 'gst' or 'nongst'; the two never mix.
+ *  With `customerId` (the customer page) the customer is fixed and the picker is hidden. */
+export default function StatementPage({ kind, customerId }) {
   const copy = COPY[kind]
   const toast = useToast()
   const [params] = useSearchParams()
   const [customers, setCustomers] = useState([])
-  const [customer, setCustomer] = useState(params.get('customer') || '')
+  const [customer, setCustomer] = useState(customerId ? String(customerId) : params.get('customer') || '')
   const [preset, setPreset] = useState('this_month')
   const [from, setFrom] = useState(() => iso(PRESETS[0][2]()[0]))
   const [to, setTo] = useState(() => iso(PRESETS[0][2]()[1]))
@@ -49,8 +50,9 @@ export default function StatementPage({ kind }) {
   const [pdfBusy, setPdfBusy] = useState(false)
 
   useEffect(() => {
+    if (customerId) return
     customersApi.list({ page_size: 500, ordering: 'name' }).then((r) => setCustomers(r.data.results ?? r.data)).catch(() => {})
-  }, [])
+  }, [customerId])
 
   const pickPreset = (key) => {
     setPreset(key)
@@ -91,6 +93,22 @@ export default function StatementPage({ kind }) {
     finally { setPdfBusy(false) }
   }
 
+  // Phones (and some desktop browsers) can hand the PDF straight to WhatsApp via the share sheet.
+  const canShareFiles = typeof navigator !== 'undefined' && typeof navigator.canShare === 'function'
+  const share = async () => {
+    setPdfBusy(true)
+    try {
+      const url = await statementsApi.pdfUrl(kind, query)
+      const blob = await fetch(url).then((r) => r.blob())
+      URL.revokeObjectURL(url)
+      const file = new File([blob], `${fileBase}.pdf`, { type: 'application/pdf' })
+      if (!navigator.canShare({ files: [file] })) throw new Error('unsupported')
+      await navigator.share({ files: [file], title: fileBase, text: `Statement ${dmy(from)} to ${dmy(to)}` })
+    } catch (e) {
+      if (e?.name !== 'AbortError') toast("This browser can't share files. Download the PDF and attach it in WhatsApp.", 'error')
+    } finally { setPdfBusy(false) }
+  }
+
   const csv = () => {
     const q = (s) => `"${String(s ?? '').replace(/"/g, '""')}"`
     const lines = [
@@ -112,13 +130,13 @@ export default function StatementPage({ kind }) {
     <div className="space-y-4">
       <Card className="p-4">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-12">
-          <div className="md:col-span-4">
+          {!customerId && <div className="md:col-span-4">
             <Label>Customer *</Label>
             <Select value={customer} onChange={(e) => setCustomer(e.target.value)}>
               <option value="">— Select customer —</option>
               {customers.map((c) => <option key={c.id} value={c.id}>{customerLabel(c)}</option>)}
             </Select>
-          </div>
+          </div>}
           <div className="md:col-span-3">
             <Label>Period</Label>
             <Select value={preset} onChange={(e) => pickPreset(e.target.value)}>
@@ -153,6 +171,7 @@ export default function StatementPage({ kind }) {
               <Button variant="outline" onClick={() => pdf('open')} disabled={pdfBusy}><Eye className="h-4 w-4" /> View PDF</Button>
               <Button onClick={() => pdf('download')} loading={pdfBusy}><Download className="h-4 w-4" /> Download PDF</Button>
               <Button variant="outline" onClick={csv}><FileSpreadsheet className="h-4 w-4" /> Excel (CSV)</Button>
+              {canShareFiles && <Button variant="outline" onClick={share} disabled={pdfBusy}><Share2 className="h-4 w-4" /> Share (WhatsApp)</Button>}
             </div>
           </div>
 

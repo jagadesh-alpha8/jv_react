@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
+import { Link } from 'react-router-dom'
 import { Search, Plus, Download, Trash2 } from 'lucide-react'
 import { invoicesApi, customersApi, productsApi } from '../../api'
 import { Modal } from '../../components/ui/modal'
@@ -146,7 +147,7 @@ export default function Invoices() {
               ) : rows.map((inv) => (
                 <Tr key={inv.id}>
                   <Td className="font-mono text-xs">{inv.invoice_number}</Td>
-                  <Td className="font-medium">{inv.customer_name}</Td>
+                  <Td className="font-medium"><Link to={`/customers/${inv.customer}`} className="hover:text-primary hover:underline">{inv.customer_name}</Link></Td>
                   <Td>{inv.issue_date}</Td>
                   <Td>{inv.due_date || '—'}</Td>
                   <Td className="text-right font-mono text-xs">{fmt(inv.subtotal)}</Td>

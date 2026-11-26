@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Search, Plus, Download, FileText, Trash2, Pencil, History } from 'lucide-react'
 import { nongstApi, customersApi, productsApi } from '../../api'
 import { Modal } from '../../components/ui/modal'
@@ -274,7 +275,7 @@ export default function NonGstBills() {
               ) : rows.map((b) => (
                 <Tr key={b.id}>
                   <Td className="font-mono text-xs">{b.bill_number}</Td>
-                  <Td className="font-medium">{b.customer_name}</Td>
+                  <Td className="font-medium"><Link to={`/customers/${b.customer}`} className="hover:text-primary hover:underline">{b.customer_name}</Link></Td>
                   <Td>{b.bill_date}</Td>
                   <Td className="text-right font-mono text-xs font-semibold">{inr(b.total)}</Td>
                   <Td className="text-right font-mono text-xs text-amber-300/90">{inr(b.previous_balance)}</Td>

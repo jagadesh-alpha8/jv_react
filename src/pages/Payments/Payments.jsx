@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
+import { Link } from 'react-router-dom'
 import { Search, Plus, Pencil, Trash2 } from 'lucide-react'
 import { paymentsApi, invoicesApi, customersApi } from '../../api'
 import { Modal } from '../../components/ui/modal'
@@ -288,7 +289,7 @@ export default function Payments() {
               ) : rows.map((p) => (
                 <Tr key={p.id}>
                   <Td className="font-mono text-xs">{p.invoice_number || p.invoice}</Td>
-                  <Td>{p.customer_name || '—'}</Td>
+                  <Td>{p.customer_id ? <Link to={`/customers/${p.customer_id}`} className="hover:text-primary hover:underline">{p.customer_name}</Link> : '—'}</Td>
                   <Td>{p.payment_date}</Td>
                   <Td>{methodLabel[p.payment_method] || p.payment_method}</Td>
                   <Td className="font-mono text-xs">{fmt(p.amount)}</Td>

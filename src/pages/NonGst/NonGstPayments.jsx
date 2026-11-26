@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Search, Plus, Trash2, Pencil } from 'lucide-react'
 import { nongstApi, customersApi } from '../../api'
 import { Modal } from '../../components/ui/modal'
@@ -14,10 +15,10 @@ import { useToast } from '../../components/ui/toast'
 import { inr, today, errorText, PAYMENT_METHODS, methodLabel } from './shared'
 import { customerLabel } from '../../lib/customer'
 
-const EMPTY = () => ({ customer: '', amount: '', payment_method: 'cash', payment_date: today(), reference_id: '', notes: '' })
+const EMPTY = (customer = '') => ({ customer: customer ? String(customer) : '', amount: '', payment_method: 'cash', payment_date: today(), reference_id: '', notes: '' })
 
 /** Receive a new payment, or (with `editing`) correct one already recorded. */
-function ReceiveModal({ open, editing, customers, onClose, onSaved }) {
+export function ReceiveModal({ open, editing, customers, onClose, onSaved, defaultCustomer = '' }) {
   const toast = useToast()
   const [form, setForm] = useState(EMPTY)
   const [owes, setOwes] = useState(null)
@@ -34,8 +35,8 @@ function ReceiveModal({ open, editing, customers, onClose, onSaved }) {
       payment_date: editing.payment_date,
       reference_id: editing.reference_id || '',
       notes: editing.notes || '',
-    } : EMPTY())
-  }, [open, editing])
+    } : EMPTY(defaultCustomer))
+  }, [open, editing, defaultCustomer])
   useEffect(() => {
     if (!form.customer) { setOwes(null); return }
     let stale = false
@@ -188,7 +189,7 @@ export default function NonGstPayments() {
                   <Td className="font-mono text-xs">
                     {p.from_bill ? p.bill_number : <span className="font-sans text-muted-foreground">On account</span>}
                   </Td>
-                  <Td>{p.customer_name || '—'}</Td>
+                  <Td>{p.customer ? <Link to={`/customers/${p.customer}`} className="hover:text-primary hover:underline">{p.customer_name}</Link> : '—'}</Td>
                   <Td>{p.payment_date}</Td>
                   <Td>{methodLabel[p.payment_method] || p.payment_method}</Td>
                   <Td className="font-mono text-xs">{inr(p.amount)}</Td>

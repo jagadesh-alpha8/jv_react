@@ -39,12 +39,12 @@ const fillFromProduct = (item, p) => ({
   tax_percentage: Number(p.tax_percentage),
 })
 
-export default function InvoiceForm({ editing, customers, products, onProductCreated, onSaved, onCancel }) {
+export default function InvoiceForm({ editing, customers, products, onProductCreated, onSaved, onCancel, defaultCustomer = '' }) {
   const toast = useToast()
   const today = new Date().toISOString().slice(0, 10)
 
   const [form, setForm] = useState({
-    customer: '', issue_date: today, due_date: '',
+    customer: defaultCustomer ? String(defaultCustomer) : '', issue_date: today, due_date: '',
     supply_type: 'intra', notes: '', terms: '',
   })
   const [items, setItems] = useState([newItem()])

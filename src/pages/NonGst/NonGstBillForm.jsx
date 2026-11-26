@@ -17,9 +17,9 @@ const newItem = () => ({ product: '', description: '', unit: 'pcs', quantity: '1
 const paise = (n) => Math.round((Number(n) || 0) * 100)
 
 /** Create or edit a Non-GST bill. Shows the customer's old balance live. */
-export default function NonGstBillForm({ editing, customers, products, onProductCreated, onSaved, onCancel }) {
+export default function NonGstBillForm({ editing, customers, products, onProductCreated, onSaved, onCancel, defaultCustomer = '' }) {
   const toast = useToast()
-  const [customer, setCustomer] = useState('')
+  const [customer, setCustomer] = useState(defaultCustomer ? String(defaultCustomer) : '')
   const [billDate, setBillDate] = useState(today())
   const [items, setItems] = useState([newItem()])
   const [notes, setNotes] = useState('')
