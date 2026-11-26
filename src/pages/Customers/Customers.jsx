@@ -11,6 +11,7 @@ import { Table, THead, TBody, Tr, Th, Td, TableWrap, EmptyRow } from '../../comp
 import { Pagination } from '../../components/ui/pagination'
 import { CenteredSpinner } from '../../components/ui/spinner'
 import { useToast } from '../../components/ui/toast'
+import { customerPlace } from '../../lib/customer'
 
 const EMPTY = { name: '', phone: '', email: '', address: '', city: '', state: '', state_code: '', pincode: '', gst_number: '' }
 
@@ -145,7 +146,10 @@ export default function Customers() {
                 <EmptyRow colSpan={6}>{showHidden ? 'No hidden customers' : 'No customers found'}</EmptyRow>
               ) : rows.map((c) => (
                 <Tr key={c.id}>
-                  <Td className="font-medium">{c.name}</Td>
+                  <Td>
+                    <div className="font-medium">{c.name}</div>
+                    {customerPlace(c) && <div className="text-xs text-muted-foreground">{customerPlace(c)}</div>}
+                  </Td>
                   <Td>{c.phone || '—'}</Td>
                   <Td>{c.email || '—'}</Td>
                   <Td>{c.state || '—'}</Td>

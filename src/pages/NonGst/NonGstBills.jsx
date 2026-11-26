@@ -13,6 +13,7 @@ import { CenteredSpinner } from '../../components/ui/spinner'
 import { useToast } from '../../components/ui/toast'
 import NonGstBillForm from './NonGstBillForm'
 import { inr, today, errorText } from './shared'
+import { customerLabel } from '../../lib/customer'
 
 const EMPTY_OPENING = () => ({ customer: '', bill_date: today(), opening_amount: '', notes: '' })
 
@@ -150,7 +151,7 @@ function OpeningBalanceModal({ open, customers, onClose, onSaved }) {
           <Label>Customer *</Label>
           <Select value={form.customer} onChange={f('customer')} disabled={Boolean(editingId)}>
             <option value="">— Select customer —</option>
-            {customers.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+            {customers.map((c) => <option key={c.id} value={c.id}>{customerLabel(c)}</option>)}
             {editingId && editingRow && !customers.some((c) => String(c.id) === String(editingRow.customer)) && (
               <option value={editingRow.customer}>{editingRow.customer_name}</option>
             )}

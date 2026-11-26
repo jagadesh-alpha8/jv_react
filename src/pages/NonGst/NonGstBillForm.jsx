@@ -9,6 +9,7 @@ import { Label } from '../../components/ui/label'
 import { useToast } from '../../components/ui/toast'
 import QuickProductModal from '../Invoices/QuickProductModal'
 import { inr, today, errorText, PAYMENT_METHODS } from './shared'
+import { customerLabel } from '../../lib/customer'
 
 const NEW_PRODUCT = '__new__'
 const UNITS = ['pcs', 'set', 'kg', 'ltr', 'hrs', 'mtr', 'box']
@@ -149,7 +150,7 @@ export default function NonGstBillForm({ editing, customers, products, onProduct
           <Label>Customer *</Label>
           <Select value={customer} onChange={(e) => setCustomer(e.target.value)} disabled={Boolean(editing)}>
             <option value="">— Select customer —</option>
-            {customers.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+            {customers.map((c) => <option key={c.id} value={c.id}>{customerLabel(c)}</option>)}
           </Select>
           {editing && <p className="mt-1 text-xs text-muted-foreground">Customer can't be changed on a saved bill.</p>}
         </div>

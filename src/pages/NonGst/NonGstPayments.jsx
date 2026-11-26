@@ -12,6 +12,7 @@ import { Pagination } from '../../components/ui/pagination'
 import { CenteredSpinner } from '../../components/ui/spinner'
 import { useToast } from '../../components/ui/toast'
 import { inr, today, errorText, PAYMENT_METHODS, methodLabel } from './shared'
+import { customerLabel } from '../../lib/customer'
 
 const EMPTY = () => ({ customer: '', amount: '', payment_method: 'cash', payment_date: today(), reference_id: '', notes: '' })
 
@@ -86,7 +87,7 @@ function ReceiveModal({ open, editing, customers, onClose, onSaved }) {
             {editing && !customers.some((c) => String(c.id) === String(editing.customer)) && (
               <option value={editing.customer}>{editing.customer_name}</option>
             )}
-            {customers.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+            {customers.map((c) => <option key={c.id} value={c.id}>{customerLabel(c)}</option>)}
           </Select>
           {editing && <p className="mt-1 text-xs text-muted-foreground">Customer can't be changed on a recorded payment.</p>}
         </div>

@@ -12,6 +12,7 @@ import { Table, THead, TBody, Tr, Th, Td, TableWrap, EmptyRow } from '../../comp
 import { CenteredSpinner } from '../../components/ui/spinner'
 import { AnimatedNumber, Eyebrow, Reveal, ease, stagger } from '../../components/fx/motion'
 import { inr0 } from './shared'
+import { customerLabel } from '../../lib/customer'
 
 const Hero3D = lazy(() => import('../../three/Hero3D'))
 
@@ -70,7 +71,7 @@ function Hero({ data, scoped, customers, customerId, setCustomerId }) {
               >
                 <option value="">Overall</option>
                 <optgroup label="Customer wise">
-                  {customers.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  {customers.map((c) => <option key={c.id} value={c.id}>{customerLabel(c)}</option>)}
                 </optgroup>
               </Select>
             </div>

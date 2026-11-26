@@ -8,6 +8,7 @@ import { Select } from '../../components/ui/select'
 import { Label } from '../../components/ui/label'
 import { useToast } from '../../components/ui/toast'
 import QuickProductModal from './QuickProductModal'
+import { customerLabel } from '../../lib/customer'
 
 const NEW_PRODUCT = '__new__'
 const TAX_RATES = ['0', '5', '12', '18', '28']
@@ -152,7 +153,7 @@ export default function InvoiceForm({ editing, customers, products, onProductCre
           <Label>Customer *</Label>
           <Select value={form.customer} onChange={setF('customer')}>
             <option value="">— Select customer —</option>
-            {customers.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+            {customers.map((c) => <option key={c.id} value={c.id}>{customerLabel(c)}</option>)}
           </Select>
         </div>
         <div>

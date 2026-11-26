@@ -65,7 +65,7 @@ export default function Invoices() {
 
   useEffect(() => {
     invoicesApi.financialYears().then((r) => setFyList(r.data)).catch(() => {})
-    customersApi.list({ page: 1 }).then((r) => setCustomers(r.data.results ?? r.data)).catch(() => {})
+    customersApi.list({ page_size: 500, ordering: 'name' }).then((r) => setCustomers(r.data.results ?? r.data)).catch(() => {})
     productsApi.list({ page: 1, page_size: 500 }).then((r) => setProducts(r.data.results ?? r.data)).catch(() => {})
   }, [])
 

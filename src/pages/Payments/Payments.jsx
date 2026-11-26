@@ -11,6 +11,7 @@ import { Table, THead, TBody, Tr, Th, Td, TableWrap, EmptyRow } from '../../comp
 import { Pagination } from '../../components/ui/pagination'
 import { CenteredSpinner } from '../../components/ui/spinner'
 import { useToast } from '../../components/ui/toast'
+import { customerLabel } from '../../lib/customer'
 
 const fmt = (n) => `₹${Number(n || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}`
 
@@ -91,7 +92,7 @@ function RecordPaymentModal({ open, customers, onClose, onSaved }) {
           <Label>Customer *</Label>
           <Select value={form.customer} onChange={f('customer')}>
             <option value="">— Select customer —</option>
-            {customers.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+            {customers.map((c) => <option key={c.id} value={c.id}>{customerLabel(c)}</option>)}
           </Select>
         </div>
         {form.customer && (

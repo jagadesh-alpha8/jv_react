@@ -10,6 +10,7 @@ import { Card } from '../../components/ui/card'
 import { Table, THead, TBody, Tr, Th, Td, TableWrap } from '../../components/ui/table'
 import { CenteredSpinner } from '../../components/ui/spinner'
 import { useToast } from '../../components/ui/toast'
+import { customerLabel } from '../../lib/customer'
 
 const COPY = {
   gst: { debit: 'Invoiced', empty: 'No GST invoices or payments in this period', file: 'GST' },
@@ -115,7 +116,7 @@ export default function StatementPage({ kind }) {
             <Label>Customer *</Label>
             <Select value={customer} onChange={(e) => setCustomer(e.target.value)}>
               <option value="">— Select customer —</option>
-              {customers.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              {customers.map((c) => <option key={c.id} value={c.id}>{customerLabel(c)}</option>)}
             </Select>
           </div>
           <div className="md:col-span-3">
