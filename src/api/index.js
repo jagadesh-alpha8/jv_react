@@ -15,6 +15,18 @@ api.interceptors.request.use((config) => {
   return config
 }, (error) => Promise.reject(error))
 
+// A saved token that no longer works (deleted, or the user was removed) gets a 401
+// on every call. Drop it and go back to the login page instead of leaving every
+// page broken until the user logs out by hand.
+api.interceptors.response.use((res) => res, (error) => {
+  const url = error.config?.url || ''
+  if (error.response?.status === 401 && !url.includes('/login/') && localStorage.getItem('token')) {
+    localStorage.removeItem('token')
+    if (window.location.pathname !== '/login') window.location.assign('/login')
+  }
+  return Promise.reject(error)
+})
+
 export default api
 
 // ── Company ──

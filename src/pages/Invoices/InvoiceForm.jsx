@@ -9,6 +9,7 @@ import { Label } from '../../components/ui/label'
 import { useToast } from '../../components/ui/toast'
 import QuickProductModal from './QuickProductModal'
 import { customerLabel } from '../../lib/customer'
+import { today as localToday, errorText } from '../NonGst/shared'
 
 const NEW_PRODUCT = '__new__'
 const TAX_RATES = ['0', '5', '12', '18', '28']
@@ -41,7 +42,8 @@ const fillFromProduct = (item, p) => ({
 
 export default function InvoiceForm({ editing, customers, products, onProductCreated, onSaved, onCancel, defaultCustomer = '' }) {
   const toast = useToast()
-  const today = new Date().toISOString().slice(0, 10)
+  // Local date, not UTC: before 5:30 am in India, UTC is still yesterday.
+  const today = localToday()
 
   const [form, setForm] = useState({
     customer: defaultCustomer ? String(defaultCustomer) : '', issue_date: today, due_date: '',
@@ -127,7 +129,10 @@ export default function InvoiceForm({ editing, customers, products, onProductCre
     if (form.due_date && form.due_date < form.issue_date) {
       return toast('Due date must be on or after the invoice date.', 'error')
     }
-    if (items.some((it) => !it.description || !it.unit_price)) return toast('All items need description and price', 'error')
+    // A price of 0 is allowed (free item); only an empty price is missing.
+    if (items.some((it) => !it.description || it.unit_price === '' || it.unit_price == null || Number(it.unit_price) < 0)) {
+      return toast('All items need a description and a price (0 for a free item)', 'error')
+    }
     setSaving(true)
     try {
       const payload = {
@@ -141,8 +146,7 @@ export default function InvoiceForm({ editing, customers, products, onProductCre
       toast(editing ? 'Invoice updated' : 'Invoice created', 'success')
       onSaved()
     } catch (e) {
-      const err = e.response?.data
-      toast(typeof err === 'string' ? err : JSON.stringify(err) || 'Save failed', 'error')
+      toast(errorText(e, 'Save failed'), 'error')
     } finally { setSaving(false) }
   }
 

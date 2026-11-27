@@ -6,11 +6,12 @@ import { Input } from '../../components/ui/input'
 import { Select } from '../../components/ui/select'
 import { Label } from '../../components/ui/label'
 import { useToast } from '../../components/ui/toast'
+import { today } from '../NonGst/shared'
 
 const fmt = (n) => `₹${Number(n || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}`
 
 export default function PaymentModal({ open, invoice, onClose, onSaved }) {
-  const [form, setForm] = useState({ amount: '', payment_method: 'cash', payment_date: new Date().toISOString().slice(0, 10), reference_id: '', notes: '' })
+  const [form, setForm] = useState({ amount: '', payment_method: 'cash', payment_date: today(), reference_id: '', notes: '' })
   const [saving, setSaving] = useState(false)
   const toast = useToast()
 
